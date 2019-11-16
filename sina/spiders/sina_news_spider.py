@@ -45,14 +45,13 @@ class sina(scrapy.Spider):
             if content is None:
                 raise Exception(f"Content can found {response.url}")
 
-            source = self.extract_source(soup)
+            source = self.extract_source(soup, response.url)
             if source is None:
                 raise Exception(f"Source can found {response.url}")
 
             item = SinaItem(title=title, keywords=keywords, source=source, content=content, public_date=public_date,
                             url=response.url)
             yield item
-            print(f"{title} {public_date} {keywords} {source} {content}")
         except Exception as e:
             self.logger.error(str(e))
             self.logger.error(traceback.format_exc())
@@ -135,7 +134,7 @@ class sina(scrapy.Spider):
                 return "\n".join([artical.text.strip() for artical in content])[:10]
 
     @staticmethod
-    def extract_source(soup):
+    def extract_source(soup, url):
         selectors = ['span.source', 'a.source', 'span#art_source',
                      'span#media_name a', 'p.origin span.linkRed02',
                      'span#media_name', 'span.time-source span a', 'a.ent-source',
